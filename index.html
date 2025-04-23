@@ -1,277 +1,149 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MyTutor – Smart Tutoring Wizard</title>
+  <title>Smart Tutor</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background: #f4f6f8;
-      color: #333;
-    }
-    .step {
-      display: none;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      max-width: 600px;
-      margin: auto;
-    }
-    .step.active {
-      display: block;
-    }
-    input[type="text"], input[type="file"], select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      margin-bottom: 20px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    input[type="radio"], input[type="checkbox"] {
-      margin-right: 10px;
-    }
+    body { font-family: Arial; max-width: 700px; margin: auto; padding: 20px; }
+    .step { display: none; }
+    .active { display: block; }
     button {
       padding: 10px 20px;
-      margin: 5px;
-      border: none;
+      margin-top: 10px;
       background: #007bff;
       color: white;
+      border: none;
       border-radius: 5px;
       cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    .question {
-      margin-bottom: 20px;
-    }
-    #resultMessage {
-      margin-top: 20px;
-      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>🎓 MyTutor – Smart Tutoring Wizard</h1>
-  <div id="stepContainer">
-    <!-- Steps 1–4 same as before -->
-    <div class="step active" id="step-1">
-      <h2>Select a Subject</h2>
-      <input type="text" id="subjectInput" placeholder="e.g., Math, Biology" />
-      <button onclick="nextStep()">Next</button>
-    </div>
+  <h2>🎓 Smart Tutor RL Demo</h2>
 
-    <div class="step" id="step-2">
-      <h2>Select a Sub-topic</h2>
-      <input type="text" id="subtopicInput" placeholder="e.g., Algebra, Cell Structure" />
-      <button onclick="prevStep()">Back</button>
-      <button onclick="nextStep()">Next</button>
-    </div>
+  <div class="step active" id="step1">
+    <p>Select a subject:</p>
+    <select id="subject">
+      <option value="">--Choose--</option>
+      <option value="Math">Math</option>
+      <option value="Science">Science</option>
+      <option value="English">English</option>
+    </select>
+    <button onclick="loadDiagnostic()">Start</button>
+  </div>
 
-    <div class="step" id="step-3">
-      <h2>Upload Your Notes</h2>
-      <input type="file" id="notesUpload" accept=".pdf,.docx,.txt" />
-      <p><small>Accepted formats: PDF, DOCX, or TXT</small></p>
-      <button onclick="prevStep()">Back</button>
-      <button onclick="nextStep()">Next</button>
-    </div>
+  <div class="step" id="step2">
+    <h3>Diagnostic</h3>
+    <form id="diagForm"></form>
+    <button onclick="submitDiagnostic(event)">Next</button>
+  </div>
 
-    <div class="step" id="step-4">
-      <h2>Select Difficulty Level</h2>
-      <select id="difficultySelect">
-        <option value="">-- Choose one --</option>
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
-      </select>
-      <button onclick="prevStep()">Back</button>
-      <button onclick="nextStep()">Next</button>
-    </div>
+  <div class="step" id="step3">
+    <h3>Quiz</h3>
+    <form id="quizForm"></form>
+    <button onclick="submitQuiz(event)">Submit</button>
+  </div>
 
-    <!-- Step 5: Diagnostic -->
-    <div class="step" id="step-5">
-      <h2>Personalization Questions (<span id="questionNum">1</span>/10)</h2>
-      <div class="question">
-        <label id="questionLabel">Question here</label>
-        <div id="optionsContainer"></div>
-        <div id="otherContainer" style="display: none;">
-          <input type="text" id="otherInput" placeholder="Enter your own answer" />
-        </div>
-      </div>
-      <button onclick="prevStep()">Back</button>
-      <button onclick="nextDiagnosticQuestion()">Next Question</button>
-    </div>
-
-    <!-- Step 6: Tutoring Phase -->
-    <div class="step" id="step-6">
-      <h2>🎯 Tutoring Phase</h2>
-      <p>✅ Custom quiz coming soon...</p>
-      <p>📖 Explanations and study tips will be generated from your uploaded notes.</p>
-      <p id="resultMessage"></p>
-      <button onclick="restart()">Start Over</button>
-    </div>
+  <div class="step" id="step4">
+    <h3>Results</h3>
+    <div id="results"></div>
+    <p id="feedback" style="font-weight: bold; margin-top: 10px;"></p>
+    <button id="nextQuizBtn" style="display: none;" onclick="takeNextQuiz()">Take Another Quiz</button>
   </div>
 
   <script>
-    let currentStep = 1;
-    let currentQuestion = 1;
-    const totalQuestions = 10;
-    const answers = [];
+    function show(stepId) {
+      document.querySelectorAll(".step").forEach(div => div.classList.remove("active"));
+      document.getElementById(stepId).classList.add("active");
+    }
 
-    const questions = [
-      {
-        text: "What topics do you struggle with most?",
-        type: "checkbox",
-        options: ["Formulas", "Concepts", "Homework", "Tests", "Other"]
-      },
-      {
-        text: "Do you prefer videos or text explanations?",
-        type: "radio",
-        options: ["Videos", "Text", "Interactive", "Neither", "Other"]
-      },
-      {
-        text: "How much time can you study daily?",
-        type: "radio",
-        options: ["<30 mins", "1 hour", "2+ hours", "It varies", "Other"]
-      },
-      {
-        text: "How do you usually prepare for tests?",
-        type: "checkbox",
-        options: ["Flashcards", "Group study", "Practice problems", "Reading notes", "Other"]
-      },
-      {
-        text: "Do you learn better through practice or theory? (Practice = hands-on, doing it yourself. Theory = learning ideas and concepts first.)",
-        type: "radio",
-        options: ["Practice", "Theory", "Both", "Depends", "Other"]
-      },
-      {
-        text: "What’s your main academic goal?",
-        type: "radio",
-        options: ["Pass exams", "Master material", "Catch up", "Improve GPA", "Other"]
-      },
-      {
-        text: "Do you need help with homework or tests?",
-        type: "radio",
-        options: ["Homework", "Tests", "Both", "Other"]
-      },
-      {
-        text: "Which resource types work best for you?",
-        type: "checkbox",
-        options: ["Videos", "PDFs", "Flashcards", "Live tutors", "Other"]
-      },
-      {
-        text: "How quickly do you want to improve?",
-        type: "radio",
-        options: ["Right away", "In a few weeks", "Slow but steady", "Other"]
-      },
-      {
-        text: "How do you like to learn? (Pick one that fits you best!)",
-        type: "radio",
-        options: ["By seeing (Visual)", "By listening (Auditory)", "By doing (Hands-on)", "By talking it out (Verbal)", "Other"]
-      }
-    ];
-
-    function showStep(stepNum) {
-      document.querySelectorAll('.step').forEach((step, index) => {
-        step.classList.remove("active");
-        if (index === stepNum - 1) {
-          step.classList.add("active");
-        }
+    function loadDiagnostic() {
+      const subject = document.getElementById("subject").value;
+      if (!subject) return alert("Please choose a subject.");
+      fetch("/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject })
+      }).then(res => res.json()).then(data => {
+        const form = document.getElementById("diagForm");
+        form.innerHTML = "";
+        data.forEach((q, i) => {
+          form.innerHTML += `<p>${q.question}<br><input name="q${i}" /></p>`;
+        });
+        show("step2");
       });
-
-      if (stepNum === 5) renderQuestion();
     }
 
-    function nextStep() {
-      currentStep++;
-      showStep(currentStep);
-    }
-
-    function prevStep() {
-      currentStep--;
-      showStep(currentStep);
-    }
-
-    function renderQuestion() {
-      const q = questions[currentQuestion - 1];
-      document.getElementById("questionLabel").innerText = q.text;
-
-      const optionsContainer = document.getElementById("optionsContainer");
-      optionsContainer.innerHTML = ""; // Clear old options
-
-      q.options.forEach(option => {
-        const input = document.createElement("input");
-        const id = `opt-${option.replace(/\s+/g, "-").toLowerCase()}`;
-        input.type = q.type;
-        input.name = "answerOption";
-        input.id = id;
-        input.value = option;
-        input.onclick = () => {
-          document.getElementById("otherContainer").style.display = (option === "Other") ? "block" : "none";
-        };
-
-        const label = document.createElement("label");
-        label.setAttribute("for", id);
-        label.innerText = option;
-
-        const line = document.createElement("div");
-        line.appendChild(input);
-        line.appendChild(label);
-        optionsContainer.appendChild(line);
+    function submitDiagnostic(event) {
+      event.preventDefault();
+      const form = document.getElementById("diagForm");
+      const data = {};
+      new FormData(form).forEach((val, key) => data[key] = val);
+      fetch("/submit_diagnostic", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      }).then(res => res.json()).then(data => {
+        const form = document.getElementById("quizForm");
+        form.innerHTML = `<p><strong>Difficulty:</strong> ${data.difficulty}</p>`;
+        data.questions.forEach((q, i) => {
+          form.innerHTML += `<p>${q.question}</p>`;
+          q.options.forEach(opt => {
+            form.innerHTML += `<label><input type="radio" name="q${i}" value="${opt}"> ${opt}</label><br>`;
+          });
+        });
+        show("step3");
       });
-
-      document.getElementById("otherInput").value = "";
-      document.getElementById("otherContainer").style.display = "none";
     }
 
-    function nextDiagnosticQuestion() {
-      const q = questions[currentQuestion - 1];
-      let selectedAnswers = [];
+    function submitQuiz(event) {
+      event.preventDefault();
+      const form = document.getElementById("quizForm");
+      const data = {};
+      new FormData(form).forEach((val, key) => data[key] = val);
+      fetch("/submit_quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      }).then(res => res.json()).then(res => {
+        document.getElementById("results").innerHTML = `
+          <p><strong>✅ Score:</strong> ${res.score}/2</p>
+          <p><strong>🧠 Reward:</strong> ${res.reward}</p>
+          <p><strong>📈 Next Suggested Difficulty:</strong> ${res.next}</p>
+        `;
 
-      const inputs = document.querySelectorAll(`input[name="answerOption"]:checked`);
-      inputs.forEach(input => {
-        if (input.value === "Other") {
-          const custom = document.getElementById("otherInput").value.trim();
-          if (custom) selectedAnswers.push(custom);
+        let feedback = "";
+        if (res.score === 2) {
+          feedback = "🔥 Awesome! You're ready for a challenge!";
+        } else if (res.score === 1) {
+          feedback = "👍 Not bad! Let's try again to improve.";
         } else {
-          selectedAnswers.push(input.value);
+          feedback = "🛠️ Let's take it slow and try an easier quiz.";
         }
+
+        document.getElementById("feedback").innerText = feedback;
+        document.getElementById("nextQuizBtn").style.display = "inline-block";
+        show("step4");
+      }).catch(err => {
+        alert("Something went wrong. Check your server or console.");
+        console.error(err);
       });
-
-      if (selectedAnswers.length === 0) {
-        alert("Please select or enter at least one answer.");
-        return;
-      }
-
-      answers.push({
-        question: q.text,
-        answers: selectedAnswers
-      });
-
-      if (currentQuestion < totalQuestions) {
-        currentQuestion++;
-        document.getElementById("questionNum").innerText = currentQuestion;
-        renderQuestion();
-      } else {
-        nextStep();
-        console.log("🧠 All Answers:", answers);
-      }
     }
 
-    function restart() {
-      currentStep = 1;
-      currentQuestion = 1;
-      answers.length = 0;
-      document.getElementById("questionNum").innerText = currentQuestion;
-      renderQuestion();
-      showStep(currentStep);
+    function takeNextQuiz() {
+      fetch("/quiz").then(res => res.json()).then(data => {
+        const form = document.getElementById("quizForm");
+        form.innerHTML = `<p><strong>New Difficulty:</strong> ${data.difficulty}</p>`;
+        data.questions.forEach((q, i) => {
+          form.innerHTML += `<p>${q.question}</p>`;
+          q.options.forEach(opt => {
+            form.innerHTML += `<label><input type="radio" name="q${i}" value="${opt}"> ${opt}</label><br>`;
+          });
+        });
+        show("step3");
+        document.getElementById("nextQuizBtn").style.display = "none";
+        document.getElementById("feedback").innerText = "";
+      });
     }
-
-    showStep(currentStep);
   </script>
 </body>
 </html>
