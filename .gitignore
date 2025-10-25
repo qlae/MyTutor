@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+q_table.json
+.env
+.DS_Store

@@ -1,0 +1,44 @@
+{
+  "Math": {
+    "diagnostic": [
+      { "question": "What is 3 + 3?", "answer": "6" },
+      { "question": "What is 10 - 4?", "answer": "6" }
+    ],
+    "bank": [
+      { "question": "2 + 2 = ?", "options": ["3","4","5"], "answer": "4", "hint": "Think pairs." },
+      { "question": "3 + 1 = ?", "options": ["3","4","5"], "answer": "4", "hint": "Add one to three." },
+      { "question": "12 / 3 = ?", "options": ["3","4","5"], "answer": "4", "hint": "12 split in 3 equal parts." },
+      { "question": "2 × 6 = ?", "options": ["10","12","14"], "answer": "12", "hint": "2 groups of 6." },
+      { "question": "√81 = ?", "options": ["8","9","10"], "answer": "9", "hint": "What squared is 81?" },
+      { "question": "30% of 100 = ?", "options": ["20","30","40"], "answer": "30", "hint": "Percent of 100 is easy." }
+    ]
+  },
+  "Science": {
+    "diagnostic": [
+      { "question": "What planet is known as the Red Planet?", "answer": "Mars" },
+      { "question": "What force keeps us on the ground?", "answer": "Gravity" }
+    ],
+    "bank": [
+      { "question": "Humans mainly breathe in?", "options": ["Hydrogen","Oxygen","CO2","Nitrogen"], "answer": "Oxygen", "hint": "O2." },
+      { "question": "H2O is?", "options": ["Water","Oxygen","Hydrogen","Salt"], "answer": "Water", "hint": "Two H, one O." },
+      { "question": "Photosynthesis happens in?", "options": ["Roots","Stem","Leaves","Flowers"], "answer": "Leaves", "hint": "Green part." },
+      { "question": "Largest planet?", "options": ["Earth","Mars","Jupiter","Venus"], "answer": "Jupiter", "hint": "Gas giant." },
+      { "question": "Earth's core is mostly?", "options": ["Iron","Gold","Lead","Silver"], "answer": "Iron", "hint": "Fe." },
+      { "question": "Speed needed to orbit is called?", "options": ["Drift","Escape velocity","Orbital velocity","Lift"], "answer": "Orbital velocity", "hint": "Stays in orbit." }
+    ]
+  },
+  "English": {
+    "diagnostic": [
+      { "question": "Past tense of 'run'?", "answer": "ran" },
+      { "question": "Choose a noun: Jump / Dog / Quickly / Blue", "answer": "Dog" }
+    ],
+    "bank": [
+      { "question": "Synonym for 'happy'?", "options": ["Sad","Angry","Joyful","Mad"], "answer": "Joyful", "hint": "J—" },
+      { "question": "Plural of 'child'?", "options": ["Childs","Children","Childes","Childer"], "answer": "Children", "hint": "Irregular plural." },
+      { "question": "Pick the comma: \"Let's eat ___\"", "options": ["comma","period","semicolon","question mark"], "answer": "comma", "hint": "Pause." },
+      { "question": "Antonym of 'difficult'?", "options": ["Hard","Easy","Tough","Complex"], "answer": "Easy", "hint": "Simple." },
+      { "question": "Adjective in 'the red ball'?", "options": ["the","red","ball","'the red'"], "answer": "red", "hint": "Describes noun." },
+      { "question": "Choose the verb: 'Birds ___'", "options": ["sky","blue","fly","quick"], "answer": "fly", "hint": "Action." }
+    ]
+  }
+}
